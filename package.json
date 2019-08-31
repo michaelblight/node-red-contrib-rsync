@@ -20,5 +20,12 @@
   "bugs": {
     "url": "https://github.com/michaelblight/node-red-contrib-rsync/issues"
   },
-  "homepage": "https://github.com/michaelblight/node-red-contrib-rsync#readme"
+  "homepage": "https://github.com/michaelblight/node-red-contrib-rsync#readme",
+  "dependencies": {
+    "rsyncwrapper": "^3.0.0"
+  },  "node-red" : {
+    "nodes": {
+      "rsync": "rsync-wrapper.js"
+    }
+  }
 }
