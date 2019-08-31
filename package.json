@@ -11,8 +11,7 @@
     "url": "git+https://github.com/michaelblight/node-red-contrib-rsync.git"
   },
   "keywords": [
-    "node",
-    "red",
+    "node-red",
     "rsync"
   ],
   "author": "Michael Blight",
