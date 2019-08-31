@@ -1,6 +1,6 @@
 # rsync for Node-Red
 
-This node is a wrapper around the ![rsyncwrapper](https://www.npmjs.com/package/rsyncwrapper) module, which is a wrapper around rsync.
+This node is a wrapper around the [rsyncwrapper](https://www.npmjs.com/package/rsyncwrapper) module, which is a wrapper around rsync.
 
 It requires that rsync is already installed. If using the Docker image for Node-Red, you can create your own image with rsync
 installed using the following dockerfile:
