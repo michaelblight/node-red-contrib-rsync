@@ -1,0 +1,24 @@
+{
+  "name": "node-red-contrib-rsync",
+  "version": "1.0.0",
+  "description": "Node Red wrapper for rsync",
+  "main": "rsync-wrapper.js",
+  "scripts": {
+    "test": "echo \"No test specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelblight/node-red-contrib-rsync.git"
+  },
+  "keywords": [
+    "node",
+    "red",
+    "rsync"
+  ],
+  "author": "Michael Blight",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/michaelblight/node-red-contrib-rsync/issues"
+  },
+  "homepage": "https://github.com/michaelblight/node-red-contrib-rsync#readme"
+}
