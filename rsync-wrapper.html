@@ -1,21 +1,49 @@
 <script type="text/javascript">
     RED.nodes.registerType('rsync', {
         category: 'advanced',
-        color: '#a6bbcf',
+        color: '#9999ff',
         defaults: {
 		name: { value: ""},
-		source: { value: "" },
-		destination: { value: "" },
+		source: { value: "", validate: RED.validators.typedInput("sourceType") },
+        sourceType: { value: "str" },
+		destination: { value: "", validate: RED.validators.typedInput("destinationType") },
+        destinationType: { value: "str" },
+		exclude: { value: "", validate: RED.validators.typedInput("excludeType") },
+        excludeType: { value: "str" },
+		include: { value: "", validate: RED.validators.typedInput("includeType") },
+        includeType: { value: "str" },
+		dryrun: { value: "" },
 		verbose: { value: "" },
 		recursive: { value: "" },
+		options: { value: ""},
+        extra: { value: "", validate: RED.validators.typedInput("extraType") },
+        extraType: { value: "str" },
         },
         inputs: 1,
         outputs: 2,
         icon: "file.png",
         label: function() {
             return this.name || "rsync";
-        }
+        },
+        oneditprepare: function() {
+            hookup("source", this.sourceType)
+            hookup("destination", this.destinationType)
+            hookup("exclude", this.excludeType)
+            hookup("include", this.includeType)
+            hookup("extra", this.extraType)
+        },
     });
+
+    function hookup(name, field) {
+        var f = "#node-input-"+name;
+        var ft = f+"Type";
+        $(ft).val(field);
+            $(f).typedInput({
+                default: 'str',
+                typeField: $(ft),
+                types: ['msg', 'flow', 'global', 'str', 'jsonata'],
+            });
+    }
 </script>
 
 <script type="text/x-red" data-template-name="rsync">
@@ -25,47 +53,100 @@
     </div>
     <div class="form-row">
         <label for="node-input-source"><i class="fa fa-file-text-o"></i> Source</label>
-        <input type="text" id="node-input-source" placeholder="Source">
+        <input type="text" id="node-input-source" style="width:70%">
+        <input type="hidden" id="node-input-sourceType">
     </div>
     <div class="form-row">
         <label for="node-input-destination"><i class="fa fa-file-text-o"></i> Destination</label>
-        <input type="text" id="node-input-destination" placeholder="Destination">
+        <input type="text" id="node-input-destination" style="width:70%">
+        <input type="hidden" id="node-input-destinationType">
+    </div>
+    <div class="form-row">
+        <label for="node-input-exclude"><i class="fa fa-file-text-o"></i> Exclude</label>
+        <input type="text" id="node-input-exclude" style="width:70%">
+        <input type="hidden" id="node-input-excludeType">
+    </div>
+    <div class="form-row">
+        <label for="node-input-include"><i class="fa fa-file-text-o"></i> Include</label>
+        <input type="text" id="node-input-include" style="width:70%">
+        <input type="hidden" id="node-input-includeType">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dryrun"><i class="fa fa-bug"></i> Dry run</label>
+        <input type="checkbox" id="node-input-dryrun" style="display: inline-block; width: auto; vertical-align: top;">
     </div>
     <div class="form-row">
         <label for="node-input-verbose"><i class="fa fa-bug"></i> Verbose</label>
         <input type="checkbox" id="node-input-verbose" style="display: inline-block; width: auto; vertical-align: top;">
     </div>
     <div class="form-row">
-        <label for="node-input-recursive"><i class="fa fa-bug"></i> Recursive</label>
+        <label for="node-input-recursive"><i class="fa fa-arrow-down"></i> Recursive</label>
         <input type="checkbox" id="node-input-recursive" style="display: inline-block; width: auto; vertical-align: top;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-extra"><i class="fa fa-wrench"></i> Extra options</label>
+        <input type="text" id="node-input-extra" style="width:70%">
+        <input type="hidden" id="node-input-extraType">
     </div>
 </script>
 
 <script type="text/x-red" data-help-name="rsync">
 <p>Uses rsyncwrapper to call rsync.</p>
-<p>The node can be configured with the source and destination, as well as the options below.</p>
+<p>
+    The node can be configured with the source and destination, as well as the options below.
+</p>
 <p>When configured through the dialog, the source can only be a single folder or filename. However, when configured
 through msg, the source can also be an array of folders or filenames.</p>
 
 <h3>Inputs</h3>
-<p>The following can be overridden by including them in the input msg</p>
 <dl class="message-properties">
-	<dt>source
-        	<span class="property-type">string or array</span>
-        </dt>
-	<dd>The folder or filename to copy from. Can also be an array of folders and filenames.</dd>
-	<dt>destination
-                <span class="property-type">string</span>
-        </dt>
-	<dd>The folder or filename to copy to.</dd>
-        <dt>verbose
-                <span class="property-type">boolean</span>
-        </dt>
-        <dd>Include verbose flag on rsync command.</dd>
-	<dt>recursive
-                <span class="property-type">boolean</span>
-        </dt>
-	<dd>Recursively copy child folders.</dd>
+	<dt>Source
+        <span class="property-type">string or array</span>
+    </dt>
+	<dd>
+        The folder or filename to copy from. Can also be an array of folders and filenames.
+        If one or more contain "./", then "--relative" will be automatically added to the rsync.
+    </dd>
+	<dt>
+        Destination
+        <span class="property-type">string</span>
+    </dt>
+	<dt>
+        Exclude
+        <span class="property-type">string or array</span>
+    </dt>
+    <dd>One or more patterns to exclude.</dd>
+	<dt>
+        Include
+        <span class="property-type">string or array</span>
+    </dt>
+    <dd>
+        One or more patterns to include, overriding exclude. If "*" is excluded and you want to
+        recurse sub-folders, add "*/" to (re)include sub-folders, along with the specific files
+        you want to include. For example, exclude "*" and include ["*/", "*.sh"] to rsync all shell
+        scripts in all sub-folders.
+    </dd>
+    <dt>Dry run
+        <span class="property-type">boolean</span>
+    </dt>
+    <dd>
+        Dry-run to show the files that would be copied without actually copying. Can be overridden
+        with `msg.dryrun`.
+    </dd>
+    <dt>verbose
+        <span class="property-type">boolean</span>
+    </dt>
+    <dd>
+        Include verbose flag on rsync command. Can be overridden with `msg.verbose`.
+    </dd>
+	<dt>Recursive
+        <span class="property-type">boolean</span>
+    </dt>
+	<dd>Recursively copy child folders. Can be overridden with `msg.recursive`.</dd>
+    <dt>Extra options
+        <span class="property-type">string or array</span>
+    </dt>
+    <dd>Include extra options on the rsync command line.</dd>
 </dl>
 <h3>Outputs</h3>
 <dl class="message-properties">
@@ -73,16 +154,29 @@ The resulting message will be sent to the first output if successfully, or the s
 all of the input properties, as well as the following as appropriate:
 
 	<dt>error
-                <span class="property-type">string</span>
-        </dt>
+        <span class="property-type">string</span>
+    </dt>
 	<dt>stdout
-                <span class="property-type">string</span>
-        </dt>
+        <span class="property-type">string</span>
+    </dt>
         <dt>stderr
-                <span class="property-type">string</span>
-        </dt>
-        <dt>cmd
-                <span class="property-type">string</span>
-	<dd>The command line as sent to rsync.</dd>
-        </dt>
+        <span class="property-type">string</span>
+    </dt>
+    <dt>cmd
+        <span class="property-type">string</span>
+	    <dd>The command line as sent to rsync.</dd>
+    </dt>
+</dl>
+<h3>Details</h3>
+<dl class="message-properties">
+To configure the inputs as arrays, use the JSONata format. For example, to add the following extra arguments to rsync:
+
+```
+[
+    '--prune-empty-dirs',
+    '--times'
+]
+```
+
+</dl>
 </script>
