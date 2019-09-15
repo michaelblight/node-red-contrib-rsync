@@ -131,18 +131,18 @@ through msg, the source can also be an array of folders or filenames.</p>
     </dt>
     <dd>
         Dry-run to show the files that would be copied without actually copying. Can be overridden
-        with `msg.dryrun`.
+        with <code>msg.dryrun</code>.
     </dd>
     <dt>verbose
         <span class="property-type">boolean</span>
     </dt>
     <dd>
-        Include verbose flag on rsync command. Can be overridden with `msg.verbose`.
+        Include verbose flag on rsync command. Can be overridden with <code>msg.verbose</code>.
     </dd>
 	<dt>Recursive
         <span class="property-type">boolean</span>
     </dt>
-	<dd>Recursively copy child folders. Can be overridden with `msg.recursive`.</dd>
+	<dd>Recursively copy child folders. Can be overridden with <code>msg.recursive</code>.</dd>
     <dt>Extra options
         <span class="property-type">string or array</span>
     </dt>
@@ -169,14 +169,14 @@ all of the input properties, as well as the following as appropriate:
 </dl>
 <h3>Details</h3>
 <dl class="message-properties">
-To configure the inputs as arrays, use the JSONata format. For example, to add the following extra arguments to rsync:
-
-```
+To configure the inputs as arrays, use the JSONata format. For example, to add the following extra 
+options to rsync:
+<pre style="margin-left:5px; margin-right:5px">
 [
     '--prune-empty-dirs',
     '--times'
 ]
-```
+</pre>
 
 </dl>
 </script>
